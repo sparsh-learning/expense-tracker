@@ -2,14 +2,20 @@
 <html>
 <head>
   <title>Expense Tracker – July 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    body { font-family: Arial; padding: 10px; margin: 0; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; font-size: 14px; }
     th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
-    input { width: 80px; }
-    h2, p { margin: 5px 0; }
-    #charts { display: flex; gap: 30px; justify-content: space-around; flex-wrap: wrap; }
-    canvas { max-width: 300px; }
+    input { width: 70px; font-size: 14px; }
+    h2, p { margin: 5px 0; font-size: 16px; }
+    #charts { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+    canvas { max-width: 100%; height: auto; }
+    @media (min-width: 600px) {
+      #charts { flex-direction: row; justify-content: space-around; flex-wrap: wrap; }
+      canvas { max-width: 300px; }
+    }
+    button { width: 100%; padding: 12px; font-size: 16px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -32,7 +38,7 @@
     <tbody></tbody>
   </table>
 
-  <button onclick="saveDataToFirebase()" style="padding: 10px 20px; font-size: 16px;">💾 Save</button>
+  <button onclick="saveDataToFirebase()">💾 Save</button>
   <p id="status" style="color: green;"></p>
 
   <div id="charts">
@@ -41,10 +47,10 @@
     <canvas id="unforecastedChart"></canvas>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-    import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDlsDu5Q7pbKvRM0Amw2OJY_vct6WkAUlw",
@@ -146,7 +152,9 @@
 
     loadDataFromFirestore();
 
-    const swiggyChart = new Chart(document.getElementById("swiggyChart"), {
+    const ChartLib = window.Chart;
+
+    const swiggyChart = new ChartLib(document.getElementById("swiggyChart"), {
       type: 'doughnut',
       data: {
         labels: ['Used', 'Remaining'],
@@ -154,7 +162,7 @@
       }
     });
 
-    const personalChart = new Chart(document.getElementById("personalChart"), {
+    const personalChart = new ChartLib(document.getElementById("personalChart"), {
       type: 'doughnut',
       data: {
         labels: ['Used', 'Remaining'],
@@ -162,7 +170,7 @@
       }
     });
 
-    const unforecastedChart = new Chart(document.getElementById("unforecastedChart"), {
+    const unforecastedChart = new ChartLib(document.getElementById("unforecastedChart"), {
       type: 'doughnut',
       data: {
         labels: ['Used', 'Remaining'],
@@ -180,7 +188,5 @@
       unforecastedChart.update();
     }
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
