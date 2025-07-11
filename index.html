@@ -22,9 +22,9 @@
     tfoot td { font-weight: bold; background-color: #f0f0f0; }
     @media (max-width: 600px) {
   table { font-size: 12px; }
-  input, textarea { font-size: 12px; }
+  input, textarea { font-size: 13px; min-height: 60px; }
   th, td { padding: 4px; }
-}
+     }
   </style>
 </head>
 <body>
@@ -134,7 +134,8 @@
         <td class="personal-rem">₹${totalPersonal}</td>
         <td><input type="number" value="0" class="unforecasted"></td>
         <td class="unforecasted-rem">₹${totalUnforecasted}</td>
-        <td><textarea rows="2" style="width:100%; font-size:14px;"></textarea></td>
+        <td><textarea rows="2" style="width: 100%; resize: vertical;"></textarea></td>
+
 
       `;
       tableBody.appendChild(row);
