@@ -20,13 +20,18 @@
     .chart-container { text-align: center; }
     .chart-container h3 { margin: 10px 0 5px; font-size: 16px; }
     tfoot td { font-weight: bold; background-color: #f0f0f0; }
+    @media (max-width: 600px) {
+  table { font-size: 12px; }
+  input, textarea { font-size: 12px; }
+  th, td { padding: 4px; }
+}
   </style>
 </head>
 <body>
   <select id="monthSelector"></select>
   <h2>Month – <span id="monthTitle">July 2025</span></h2>
   <p>Variable Daily Budget (Total Monthly ₹120,000): ₹4,000/day</p>
-
+<div style="overflow-x: auto;">
   <table id="expenseTable">
     <thead>
       <tr>
@@ -54,6 +59,7 @@
       </tr>
     </tfoot>
   </table>
+</div>
 
   <button onclick="saveDataToFirebase()">💾 Save</button>
   <p id="status" style="color: green;"></p>
