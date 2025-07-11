@@ -13,112 +13,53 @@
 <body>
   <h2>Month – July 2025</h2>
   <p>Variable Daily Budget (Total Monthly ₹120,000): ₹4,000/day</p>
+  
   <table id="expenseTable">
     <thead>
       <tr>
         <th>Date</th>
-        <th>Swiggy (₹600)</th>
+        <th>Swiggy (₹600/day)</th>
         <th>Swiggy Remaining</th>
-        <th>Personal (₹1000)</th>
+        <th>Personal (₹1000/day)</th>
         <th>Personal Remaining</th>
-        <th>Unforecasted (₹2000)</th>
+        <th>Unforecasted (₹2000/day)</th>
         <th>Unforecasted Remaining</th>
         <th>Notes</th>
       </tr>
     </thead>
-    
-    <tbody>
-    
-    </tbody>
+    <tbody></tbody>
   </table>
+
   <br>
-<button onclick="saveDataToFirebase()" style="padding: 10px 20px; font-size: 16px;">💾 Save</button>
-<p id="status" style="color: green;"></p>
-  <script>
-  const totalSwiggy = 18000, totalPersonal = 30000, totalUnforecasted = 60000;
-  const tableBody = document.querySelector("#expenseTable tbody");
+  <button onclick="saveDataToFirebase()" style="padding: 10px 20px; font-size: 16px;">💾 Save</button>
+  <p id="status" style="color: green;"></p>
 
-  // Build rows
-  for (let i = 1; i <= 30; i++) {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${i}</td>
-      <td><input type="number" value="0" class="swiggy"></td>
-      <td class="swiggy-rem">₹${totalSwiggy}</td>
-      <td><input type="number" value="0" class="personal"></td>
-      <td class="personal-rem">₹${totalPersonal}</td>
-      <td><input type="number" value="0" class="unforecasted"></td>
-      <td class="unforecasted-rem">₹${totalUnforecasted}</td>
-      <td><input type="text"></td>
-    `;
-    tableBody.appendChild(row);
-  }
-
-  // Attach listeners
-  document.querySelectorAll("input").forEach(input => {
-    input.addEventListener("input", updateTotals);
-  });
-
-  function updateTotals() {
-    let swiggySum = 0, personalSum = 0, unforecastedSum = 0;
-
-    document.querySelectorAll("#expenseTable tbody tr").forEach(row => {
-      const sw = parseFloat(row.querySelector(".swiggy")?.value || 0);
-      const pr = parseFloat(row.querySelector(".personal")?.value || 0);
-      const uf = parseFloat(row.querySelector(".unforecasted")?.value || 0);
-
-      swiggySum += sw;
-      personalSum += pr;
-      unforecastedSum += uf;
-
-      row.querySelector(".swiggy-rem").innerText = `₹${(totalSwiggy - swiggySum).toFixed(0)}`;
-      row.querySelector(".personal-rem").innerText = `₹${(totalPersonal - personalSum).toFixed(0)}`;
-      row.querySelector(".unforecasted-rem").innerText = `₹${(totalUnforecasted - unforecastedSum).toFixed(0)}`;
-    });
-  }
-</script>
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDlsDu5Q7pbKvRM0Amw2OJY_vct6WkAUlw",
-    authDomain: "expensetracker-81a8f.firebaseapp.com",
-    projectId: "expensetracker-81a8f",
-    storageBucket: "expensetracker-81a8f.appspot.com",
-    messagingSenderId: "932984780522",
-    appId: "1:932984780522:web:c4fdd42df18a92f1eb0993"
-  };
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlsDu5Q7pbKvRM0Amw2OJY_vct6WkAUlw",
+      authDomain: "expensetracker-81a8f.firebaseapp.com",
+      projectId: "expensetracker-81a8f",
+      storageBucket: "expensetracker-81a8f.appspot.com",
+      messagingSenderId: "932984780522",
+      appId: "1:932984780522:web:c4fdd42df18a92f1eb0993"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  window.saveDataToFirebase = async function () {
-    const data = [];
-    document.querySelectorAll("#expenseTable tbody tr").forEach((row, i) => {
-      const sw = row.querySelector(".swiggy")?.value || "0";
-      const pr = row.querySelector(".personal")?.value || "0";
-      const uf = row.querySelector(".unforecasted")?.value || "0";
-      const note = row.querySelector("td:last-child input")?.value || "";
-      data.push({ day: i + 1, swiggy: sw, personal: pr, unforecasted: uf, notes: note });
-    });
+    // Budget totals
+    const totalSwiggy = 18000;
+    const totalPersonal = 30000;
+    const totalUnforecasted = 60000;
 
-    try {
-      await setDoc(doc(db, "expenses", "July2025"), { entries: data });
-      document.getElementById("status").innerText = "✅ Data saved to Firestore!";
-    } catch (err) {
-      console.error("❌ Firestore error:", err);
-      document.getElementById("status").innerText = "❌ Save failed.";
-    }
-  };
-</script>
-
-  <script>
-    const totalSwiggy = 18000, totalPersonal = 30000, totalUnforecasted = 60000;
     const tableBody = document.querySelector("#expenseTable tbody");
 
-    let swiggySpent = 0, personalSpent = 0, unforecastedSpent = 0;
-
+    // Build table rows
     for (let i = 1; i <= 30; i++) {
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -134,26 +75,49 @@
       tableBody.appendChild(row);
     }
 
+    // Attach listeners to number inputs
     document.querySelectorAll("input[type='number']").forEach(input => {
       input.addEventListener("input", updateTotals);
     });
 
+    // Totals update function
     function updateTotals() {
-      swiggySpent = personalSpent = unforecastedSpent = 0;
-      document.querySelectorAll("tr").forEach(row => {
+      let swiggySum = 0, personalSum = 0, unforecastedSum = 0;
+
+      document.querySelectorAll("#expenseTable tbody tr").forEach(row => {
         const sw = parseFloat(row.querySelector(".swiggy")?.value || 0);
         const pr = parseFloat(row.querySelector(".personal")?.value || 0);
         const uf = parseFloat(row.querySelector(".unforecasted")?.value || 0);
 
-        swiggySpent += sw;
-        personalSpent += pr;
-        unforecastedSpent += uf;
+        swiggySum += sw;
+        personalSum += pr;
+        unforecastedSum += uf;
 
-        row.querySelector(".swiggy-rem").innerText = `₹${(totalSwiggy - swiggySpent).toFixed(0)}`;
-        row.querySelector(".personal-rem").innerText = `₹${(totalPersonal - personalSpent).toFixed(0)}`;
-        row.querySelector(".unforecasted-rem").innerText = `₹${(totalUnforecasted - unforecastedSpent).toFixed(0)}`;
+        row.querySelector(".swiggy-rem").innerText = `₹${(totalSwiggy - swiggySum).toFixed(0)}`;
+        row.querySelector(".personal-rem").innerText = `₹${(totalPersonal - personalSum).toFixed(0)}`;
+        row.querySelector(".unforecasted-rem").innerText = `₹${(totalUnforecasted - unforecastedSum).toFixed(0)}`;
       });
     }
+
+    // Save button logic
+    window.saveDataToFirebase = async function () {
+      const data = [];
+      document.querySelectorAll("#expenseTable tbody tr").forEach((row, i) => {
+        const sw = row.querySelector(".swiggy")?.value || "0";
+        const pr = row.querySelector(".personal")?.value || "0";
+        const uf = row.querySelector(".unforecasted")?.value || "0";
+        const note = row.querySelector("td:last-child input")?.value || "";
+        data.push({ day: i + 1, swiggy: sw, personal: pr, unforecasted: uf, notes: note });
+      });
+
+      try {
+        await setDoc(doc(db, "expenses", "July2025"), { entries: data });
+        document.getElementById("status").innerText = "✅ Data saved to Firestore!";
+      } catch (err) {
+        console.error("❌ Firestore error:", err);
+        document.getElementById("status").innerText = "❌ Save failed.";
+      }
+    };
   </script>
 </body>
 </html>
