@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Expense Tracker – July 2025</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    input { width: 80px; }
+    h2, p { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h2>Month – July 2025</h2>
+  <p>Variable Daily Budget (Total Monthly ₹120,000): ₹4,000/day</p>
+  <table id="expenseTable">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Swiggy (₹600)</th>
+        <th>Swiggy Remaining</th>
+        <th>Personal (₹1000)</th>
+        <th>Personal Remaining</th>
+        <th>Unforecasted (₹2000)</th>
+        <th>Unforecasted Remaining</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script>
+    const totalSwiggy = 18000, totalPersonal = 30000, totalUnforecasted = 60000;
+    const tableBody = document.querySelector("#expenseTable tbody");
+
+    let swiggySpent = 0, personalSpent = 0, unforecastedSpent = 0;
+
+    for (let i = 1; i <= 30; i++) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${i}</td>
+        <td><input type="number" value="0" class="swiggy"></td>
+        <td class="swiggy-rem">₹${totalSwiggy}</td>
+        <td><input type="number" value="0" class="personal"></td>
+        <td class="personal-rem">₹${totalPersonal}</td>
+        <td><input type="number" value="0" class="unforecasted"></td>
+        <td class="unforecasted-rem">₹${totalUnforecasted}</td>
+        <td><input type="text"></td>
+      `;
+      tableBody.appendChild(row);
+    }
+
+    document.querySelectorAll("input[type='number']").forEach(input => {
+      input.addEventListener("input", updateTotals);
+    });
+
+    function updateTotals() {
+      swiggySpent = personalSpent = unforecastedSpent = 0;
+      document.querySelectorAll("tr").forEach(row => {
+        const sw = parseFloat(row.querySelector(".swiggy")?.value || 0);
+        const pr = parseFloat(row.querySelector(".personal")?.value || 0);
+        const uf = parseFloat(row.querySelector(".unforecasted")?.value || 0);
+
+        swiggySpent += sw;
+        personalSpent += pr;
+        unforecastedSpent += uf;
+
+        row.querySelector(".swiggy-rem").innerText = `₹${(totalSwiggy - swiggySpent).toFixed(0)}`;
+        row.querySelector(".personal-rem").innerText = `₹${(totalPersonal - personalSpent).toFixed(0)}`;
+        row.querySelector(".unforecasted-rem").innerText = `₹${(totalUnforecasted - unforecastedSpent).toFixed(0)}`;
+      });
+    }
+  </script>
+</body>
+</html>
