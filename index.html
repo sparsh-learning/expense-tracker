@@ -8,6 +8,7 @@
     table { border-collapse: collapse; width: 100%; margin-bottom: 20px; font-size: 14px; }
     th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
     input { width: 70px; font-size: 14px; }
+    textarea {width: 100%;resize: vertical;box-sizing: border-box;}
     h2, p { margin: 5px 0; font-size: 16px; }
     #charts { display: flex; flex-direction: column; gap: 20px; align-items: center; }
     canvas { max-width: 100%; height: auto; }
@@ -25,6 +26,17 @@
   input, textarea { font-size: 13px; min-height: 60px; }
   th, td { padding: 4px; }
      }
+    #expenseTable td:last-child,
+#expenseTable th:last-child {
+  width: 200px; /* or adjust as needed */
+}
+
+@media (max-width: 600px) {
+  #expenseTable td:last-child,
+  #expenseTable th:last-child {
+    width: 100%; /* stack if needed */
+  }
+}
   </style>
 </head>
 <body>
