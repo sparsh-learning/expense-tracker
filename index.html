@@ -26,9 +26,15 @@
         <th>Notes</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    
+    <tbody>
+    
+    </tbody>
   </table>
-  
+  <br>
+<button onclick="saveDataToFirebase()" style="padding: 10px 20px; font-size: 16px;">💾 Save</button>
+<p id="status" style="color: green;"></p>
+
 <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"></script>
   <script>
@@ -49,27 +55,26 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-  // 2. Save when any input changes
-  document.querySelectorAll("input").forEach(input => {
-    input.addEventListener("input", function () {
-      saveData();
-    });
-  });
-
-  function saveData() {
+  // 3. Save data to Firebase on button click
+ function saveDataToFirebase() {
     const data = [];
-    document.querySelectorAll("#expenseTable tbody tr").forEach((row, index) => {
-      const sw = parseFloat(row.querySelector(".swiggy")?.value || 0);
-      const pr = parseFloat(row.querySelector(".personal")?.value || 0);
-      const uf = parseFloat(row.querySelector(".unforecasted")?.value || 0);
+    document.querySelectorAll("#expenseTable tbody tr").forEach((row, i) => {
+      const sw = row.querySelector(".swiggy")?.value || "0";
+      const pr = row.querySelector(".personal")?.value || "0";
+      const uf = row.querySelector(".unforecasted")?.value || "0";
       const note = row.querySelector("td:last-child input")?.value || "";
-      data.push({ day: index + 1, swiggy: sw, personal: pr, unforecasted: uf, notes: note });
+      data.push({ day: i + 1, swiggy: sw, personal: pr, unforecasted: uf, notes: note });
     });
 
     db.ref("expenses/July2025").set(data)
-      .then(() => console.log("Data saved"))
-      .catch(err => console.error("Save error", err));
+      .then(() => {
+        document.getElementById("status").innerText = "✅ Data saved successfully!";
+        setTimeout(() => document.getElementById("status").innerText = "", 3000);
+      })
+      .catch(err => {
+        console.error("Save failed", err);
+        document.getElementById("status").innerText = "❌ Failed to save data!";
+      });
   }
 </script>
   <script>
