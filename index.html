@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Expense Tracker – 2025</title>
+  <title>Expense Tracker – July 2025</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: Arial; padding: 10px; margin: 0; }
@@ -17,6 +17,9 @@
     }
     button { width: 100%; padding: 12px; font-size: 16px; margin-top: 10px; }
     select { font-size: 16px; margin-bottom: 10px; padding: 6px; }
+    .chart-container { text-align: center; }
+    .chart-container h3 { margin: 10px 0 5px; font-size: 16px; }
+    tfoot td { font-weight: bold; background-color: #f0f0f0; }
   </style>
 </head>
 <body>
@@ -38,15 +41,36 @@
       </tr>
     </thead>
     <tbody></tbody>
+    <tfoot>
+      <tr>
+        <td>Total</td>
+        <td id="totalSwiggy">₹0</td>
+        <td></td>
+        <td id="totalPersonal">₹0</td>
+        <td></td>
+        <td id="totalUnforecasted">₹0</td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tfoot>
   </table>
 
   <button onclick="saveDataToFirebase()">💾 Save</button>
   <p id="status" style="color: green;"></p>
 
   <div id="charts">
-    <canvas id="swiggyChart"></canvas>
-    <canvas id="personalChart"></canvas>
-    <canvas id="unforecastedChart"></canvas>
+    <div class="chart-container">
+      <h3>Swiggy Budget</h3>
+      <canvas id="swiggyChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Personal Budget</h3>
+      <canvas id="personalChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Unforecasted Budget</h3>
+      <canvas id="unforecastedChart"></canvas>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -73,6 +97,10 @@
     const tableBody = document.querySelector("#expenseTable tbody");
     const monthTitle = document.getElementById("monthTitle");
     const monthSelector = document.getElementById("monthSelector");
+
+    const totalSwiggyCell = document.getElementById("totalSwiggy");
+    const totalPersonalCell = document.getElementById("totalPersonal");
+    const totalUnforecastedCell = document.getElementById("totalUnforecasted");
 
     const months = ["July 2025", "August 2025", "September 2025", "October 2025", "November 2025", "December 2025"];
     months.forEach(month => {
@@ -127,6 +155,10 @@
         row.querySelector(".personal-rem").innerText = `₹${(totalPersonal - personalSum).toFixed(0)}`;
         row.querySelector(".unforecasted-rem").innerText = `₹${(totalUnforecasted - unforecastedSum).toFixed(0)}`;
       });
+
+      totalSwiggyCell.innerText = `₹${swiggySum.toFixed(0)}`;
+      totalPersonalCell.innerText = `₹${personalSum.toFixed(0)}`;
+      totalUnforecastedCell.innerText = `₹${unforecastedSum.toFixed(0)}`;
 
       updateCharts(swiggySum, personalSum, unforecastedSum);
     }
