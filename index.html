@@ -28,6 +28,50 @@
     </thead>
     <tbody></tbody>
   </table>
+  
+<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"></script>
+  <script>
+  // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDlsDu5Q7pbKvRM0Amw2OJY_vct6WkAUlw",
+  authDomain: "expensetracker-81a8f.firebaseapp.com",
+  projectId: "expensetracker-81a8f",
+  storageBucket: "expensetracker-81a8f.firebasestorage.app",
+  messagingSenderId: "932984780522",
+  appId: "1:932984780522:web:c4fdd42df18a92f1eb0993"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+  // 2. Save when any input changes
+  document.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", function () {
+      saveData();
+    });
+  });
+
+  function saveData() {
+    const data = [];
+    document.querySelectorAll("#expenseTable tbody tr").forEach((row, index) => {
+      const sw = parseFloat(row.querySelector(".swiggy")?.value || 0);
+      const pr = parseFloat(row.querySelector(".personal")?.value || 0);
+      const uf = parseFloat(row.querySelector(".unforecasted")?.value || 0);
+      const note = row.querySelector("td:last-child input")?.value || "";
+      data.push({ day: index + 1, swiggy: sw, personal: pr, unforecasted: uf, notes: note });
+    });
+
+    db.ref("expenses/July2025").set(data)
+      .then(() => console.log("Data saved"))
+      .catch(err => console.error("Save error", err));
+  }
+</script>
   <script>
     const totalSwiggy = 18000, totalPersonal = 30000, totalUnforecasted = 60000;
     const tableBody = document.querySelector("#expenseTable tbody");
