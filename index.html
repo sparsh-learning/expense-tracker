@@ -128,7 +128,8 @@
         <td class="personal-rem">₹${totalPersonal}</td>
         <td><input type="number" value="0" class="unforecasted"></td>
         <td class="unforecasted-rem">₹${totalUnforecasted}</td>
-        <td><input type="text"></td>
+        <td><textarea rows="2" style="width:100%; font-size:14px;"></textarea></td>
+
       `;
       tableBody.appendChild(row);
     }
@@ -174,7 +175,7 @@
             row.querySelector(".swiggy").value = entry.swiggy;
             row.querySelector(".personal").value = entry.personal;
             row.querySelector(".unforecasted").value = entry.unforecasted;
-            row.querySelector("td:last-child input").value = entry.notes;
+            row.querySelector("td:last-child textarea").value = entry.notes;
           });
           updateTotals();
         } else {
@@ -197,7 +198,7 @@
         const sw = row.querySelector(".swiggy")?.value || "0";
         const pr = row.querySelector(".personal")?.value || "0";
         const uf = row.querySelector(".unforecasted")?.value || "0";
-        const note = row.querySelector("td:last-child input")?.value || "";
+        const note = row.querySelector("td:last-child textarea")?.value || "";
         data.push({ day: i + 1, swiggy: sw, personal: pr, unforecasted: uf, notes: note });
       });
 
