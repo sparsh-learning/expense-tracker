@@ -1,25 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Expense Tracker</title>
+  <title>Expense Tracker – July 2025</title>
   <style>
     body { font-family: Arial; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
     th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
     input { width: 80px; }
     h2, p { margin: 5px 0; }
+    #charts { display: flex; gap: 30px; justify-content: space-around; flex-wrap: wrap; }
+    canvas { max-width: 300px; }
   </style>
 </head>
 <body>
-  <h2>Monthly Expense Tracker</h2>
-
-  <label for="monthSelector">Select Month:</label>
-  <select id="monthSelector">
-    <option value="July2025" selected>July 2025</option>
-    <option value="August2025">August 2025</option>
-    <option value="September2025">September 2025</option>
-  </select>
-
+  <h2>Month – <span id="monthTitle">July 2025</span></h2>
   <p>Variable Daily Budget (Total Monthly ₹120,000): ₹4,000/day</p>
 
   <table id="expenseTable">
@@ -38,16 +32,19 @@
     <tbody></tbody>
   </table>
 
-  <br>
-  <button onclick="saveDataToFirebase()" style="padding: 10px 20px; font-size: 16px;">🗐 Save</button>
+  <button onclick="saveDataToFirebase()" style="padding: 10px 20px; font-size: 16px;">💾 Save</button>
   <p id="status" style="color: green;"></p>
 
-  <canvas id="trendChart" height="150"></canvas>
+  <div id="charts">
+    <canvas id="swiggyChart"></canvas>
+    <canvas id="personalChart"></canvas>
+    <canvas id="unforecastedChart"></canvas>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDlsDu5Q7pbKvRM0Amw2OJY_vct6WkAUlw",
@@ -66,48 +63,51 @@
     const totalUnforecasted = 60000;
 
     const tableBody = document.querySelector("#expenseTable tbody");
-    const monthSelector = document.getElementById("monthSelector");
 
-    function buildTable() {
-      tableBody.innerHTML = "";
-      for (let i = 1; i <= 30; i++) {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${i}</td>
-          <td><input type="number" value="0" class="swiggy"></td>
-          <td class="swiggy-rem">₹${totalSwiggy}</td>
-          <td><input type="number" value="0" class="personal"></td>
-          <td class="personal-rem">₹${totalPersonal}</td>
-          <td><input type="number" value="0" class="unforecasted"></td>
-          <td class="unforecasted-rem">₹${totalUnforecasted}</td>
-          <td><input type="text"></td>
-        `;
-        tableBody.appendChild(row);
-      }
-      document.querySelectorAll("input[type='number']").forEach(input => {
-        input.addEventListener("input", updateTotals);
-      });
+    for (let i = 1; i <= 30; i++) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${i}</td>
+        <td><input type="number" value="0" class="swiggy"></td>
+        <td class="swiggy-rem">₹${totalSwiggy}</td>
+        <td><input type="number" value="0" class="personal"></td>
+        <td class="personal-rem">₹${totalPersonal}</td>
+        <td><input type="number" value="0" class="unforecasted"></td>
+        <td class="unforecasted-rem">₹${totalUnforecasted}</td>
+        <td><input type="text"></td>
+      `;
+      tableBody.appendChild(row);
     }
+
+    document.querySelectorAll("input[type='number']").forEach(input => {
+      input.addEventListener("input", updateTotals);
+    });
 
     function updateTotals() {
       let swiggySum = 0, personalSum = 0, unforecastedSum = 0;
+
       document.querySelectorAll("#expenseTable tbody tr").forEach(row => {
         const sw = parseFloat(row.querySelector(".swiggy")?.value || 0);
         const pr = parseFloat(row.querySelector(".personal")?.value || 0);
         const uf = parseFloat(row.querySelector(".unforecasted")?.value || 0);
+
         swiggySum += sw;
         personalSum += pr;
         unforecastedSum += uf;
+      });
+
+      document.querySelectorAll("#expenseTable tbody tr").forEach(row => {
         row.querySelector(".swiggy-rem").innerText = `₹${(totalSwiggy - swiggySum).toFixed(0)}`;
         row.querySelector(".personal-rem").innerText = `₹${(totalPersonal - personalSum).toFixed(0)}`;
         row.querySelector(".unforecasted-rem").innerText = `₹${(totalUnforecasted - unforecastedSum).toFixed(0)}`;
       });
+
+      updateCharts(swiggySum, personalSum, unforecastedSum);
     }
 
     async function loadDataFromFirestore() {
       try {
-        const month = monthSelector.value;
-        const docRef = doc(db, "expenses", month);
+        const docRef = doc(db, "expenses", "July2025");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const savedData = docSnap.data().entries;
@@ -119,12 +119,9 @@
             row.querySelector("td:last-child input").value = entry.notes;
           });
           updateTotals();
-          drawChart(savedData);
-        } else {
-          drawChart([]);
         }
       } catch (error) {
-        console.error("Load failed", error);
+        console.error("❌ Failed to load data:", error);
       }
     }
 
@@ -137,44 +134,53 @@
         const note = row.querySelector("td:last-child input")?.value || "";
         data.push({ day: i + 1, swiggy: sw, personal: pr, unforecasted: uf, notes: note });
       });
+
       try {
-        await setDoc(doc(db, "expenses", monthSelector.value), { entries: data });
+        await setDoc(doc(db, "expenses", "July2025"), { entries: data });
         document.getElementById("status").innerText = "✅ Data saved to Firestore!";
-        drawChart(data);
       } catch (err) {
-        console.error("Save failed", err);
+        console.error("❌ Firestore error:", err);
         document.getElementById("status").innerText = "❌ Save failed.";
       }
-    }
+    };
 
-    function drawChart(data) {
-      const ctx = document.getElementById("trendChart").getContext("2d");
-      const labels = data.map(d => `Day ${d.day}`);
-      const swiggy = data.map(d => parseFloat(d.swiggy || 0));
-      const personal = data.map(d => parseFloat(d.personal || 0));
-      const unforecasted = data.map(d => parseFloat(d.unforecasted || 0));
-      if (window.expenseChart) window.expenseChart.destroy();
-      window.expenseChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            { label: 'Swiggy', data: swiggy, borderColor: 'orange', fill: false },
-            { label: 'Personal', data: personal, borderColor: 'blue', fill: false },
-            { label: 'Unforecasted', data: unforecasted, borderColor: 'green', fill: false }
-          ]
-        },
-        options: { responsive: true, plugins: { legend: { position: 'top' } } }
-      });
-    }
+    loadDataFromFirestore();
 
-    monthSelector.addEventListener("change", () => {
-      buildTable();
-      loadDataFromFirestore();
+    const swiggyChart = new Chart(document.getElementById("swiggyChart"), {
+      type: 'doughnut',
+      data: {
+        labels: ['Used', 'Remaining'],
+        datasets: [{ data: [0, totalSwiggy], backgroundColor: ['#ff6384', '#cce5ff'] }]
+      }
     });
 
-    buildTable();
-    loadDataFromFirestore();
+    const personalChart = new Chart(document.getElementById("personalChart"), {
+      type: 'doughnut',
+      data: {
+        labels: ['Used', 'Remaining'],
+        datasets: [{ data: [0, totalPersonal], backgroundColor: ['#ffcd56', '#d4f4dd'] }]
+      }
+    });
+
+    const unforecastedChart = new Chart(document.getElementById("unforecastedChart"), {
+      type: 'doughnut',
+      data: {
+        labels: ['Used', 'Remaining'],
+        datasets: [{ data: [0, totalUnforecasted], backgroundColor: ['#36a2eb', '#f0d9ff'] }]
+      }
+    });
+
+    function updateCharts(swiggyUsed, personalUsed, unforecastedUsed) {
+      swiggyChart.data.datasets[0].data = [swiggyUsed, totalSwiggy - swiggyUsed];
+      personalChart.data.datasets[0].data = [personalUsed, totalPersonal - personalUsed];
+      unforecastedChart.data.datasets[0].data = [unforecastedUsed, totalUnforecasted - unforecastedUsed];
+
+      swiggyChart.update();
+      personalChart.update();
+      unforecastedChart.update();
+    }
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
