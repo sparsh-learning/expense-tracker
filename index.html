@@ -77,27 +77,25 @@
     });
   }
 </script>
-  <script>
-  // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDlsDu5Q7pbKvRM0Amw2OJY_vct6WkAUlw",
-  authDomain: "expensetracker-81a8f.firebaseapp.com",
-  projectId: "expensetracker-81a8f",
-  storageBucket: "expensetracker-81a8f.firebasestorage.app",
-  messagingSenderId: "932984780522",
-  appId: "1:932984780522:web:c4fdd42df18a92f1eb0993"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyDlsDu5Q7pbKvRM0Amw2OJY_vct6WkAUlw",
+    authDomain: "expensetracker-81a8f.firebaseapp.com",
+    databaseURL: "https://expensetracker-81a8f-default-rtdb.firebaseio.com", // ✅ important!
+    projectId: "expensetracker-81a8f",
+    storageBucket: "expensetracker-81a8f.appspot.com",
+    messagingSenderId: "932984780522",
+    appId: "1:932984780522:web:c4fdd42df18a92f1eb0993"
+  };
 
-// Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  // 3. Save data to Firebase on button click
- function saveDataToFirebase() {
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Save button function
+  window.saveDataToFirebase = function () {
     const data = [];
     document.querySelectorAll("#expenseTable tbody tr").forEach((row, i) => {
       const sw = row.querySelector(".swiggy")?.value || "0";
@@ -107,17 +105,18 @@ const firebaseConfig = {
       data.push({ day: i + 1, swiggy: sw, personal: pr, unforecasted: uf, notes: note });
     });
 
-    db.ref("expenses/July2025").set(data)
+    set(ref(db, "expenses/July2025"), data)
       .then(() => {
         document.getElementById("status").innerText = "✅ Data saved successfully!";
         setTimeout(() => document.getElementById("status").innerText = "", 3000);
       })
-      .catch(err => {
-        console.error("Save failed", err);
+      .catch((error) => {
+        console.error("❌ Save failed", error);
         document.getElementById("status").innerText = "❌ Failed to save data!";
       });
-  }
+  };
 </script>
+
   <script>
     const totalSwiggy = 18000, totalPersonal = 30000, totalUnforecasted = 60000;
     const tableBody = document.querySelector("#expenseTable tbody");
