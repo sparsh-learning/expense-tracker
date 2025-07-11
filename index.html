@@ -34,9 +34,49 @@
   <br>
 <button onclick="saveDataToFirebase()" style="padding: 10px 20px; font-size: 16px;">💾 Save</button>
 <p id="status" style="color: green;"></p>
+  <script>
+  const totalSwiggy = 18000, totalPersonal = 30000, totalUnforecasted = 60000;
+  const tableBody = document.querySelector("#expenseTable tbody");
 
-<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"></script>
+  // Build rows
+  for (let i = 1; i <= 30; i++) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${i}</td>
+      <td><input type="number" value="0" class="swiggy"></td>
+      <td class="swiggy-rem">₹${totalSwiggy}</td>
+      <td><input type="number" value="0" class="personal"></td>
+      <td class="personal-rem">₹${totalPersonal}</td>
+      <td><input type="number" value="0" class="unforecasted"></td>
+      <td class="unforecasted-rem">₹${totalUnforecasted}</td>
+      <td><input type="text"></td>
+    `;
+    tableBody.appendChild(row);
+  }
+
+  // Attach listeners
+  document.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", updateTotals);
+  });
+
+  function updateTotals() {
+    let swiggySum = 0, personalSum = 0, unforecastedSum = 0;
+
+    document.querySelectorAll("#expenseTable tbody tr").forEach(row => {
+      const sw = parseFloat(row.querySelector(".swiggy")?.value || 0);
+      const pr = parseFloat(row.querySelector(".personal")?.value || 0);
+      const uf = parseFloat(row.querySelector(".unforecasted")?.value || 0);
+
+      swiggySum += sw;
+      personalSum += pr;
+      unforecastedSum += uf;
+
+      row.querySelector(".swiggy-rem").innerText = `₹${(totalSwiggy - swiggySum).toFixed(0)}`;
+      row.querySelector(".personal-rem").innerText = `₹${(totalPersonal - personalSum).toFixed(0)}`;
+      row.querySelector(".unforecasted-rem").innerText = `₹${(totalUnforecasted - unforecastedSum).toFixed(0)}`;
+    });
+  }
+</script>
   <script>
   // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -54,7 +94,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
   // 3. Save data to Firebase on button click
  function saveDataToFirebase() {
     const data = [];
@@ -120,4 +161,7 @@ const app = initializeApp(firebaseConfig);
     }
   </script>
 </body>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"></script>
+
 </html>
