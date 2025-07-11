@@ -98,7 +98,32 @@
         row.querySelector(".unforecasted-rem").innerText = `₹${(totalUnforecasted - unforecastedSum).toFixed(0)}`;
       });
     }
+ // ✅ Load previous data
+  async function loadDataFromFirestore() {
+    try {
+      const docRef = doc(db, "expenses", "July2025");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const savedData = docSnap.data().entries;
+        savedData.forEach((entry, i) => {
+          const row = tableBody.children[i];
+          row.querySelector(".swiggy").value = entry.swiggy;
+          row.querySelector(".personal").value = entry.personal;
+          row.querySelector(".unforecasted").value = entry.unforecasted;
+          row.querySelector("td:last-child input").value = entry.notes;
+        });
+        updateTotals();
+        console.log("✅ Loaded saved data from Firestore.");
+      } else {
+        console.log("ℹ️ No saved data found.");
+      }
+    } catch (error) {
+      console.error("❌ Failed to load data:", error);
+    }
+  }
 
+  // Call it on page load
+  loadDataFromFirestore();
     // Save button logic
     window.saveDataToFirebase = async function () {
       const data = [];
